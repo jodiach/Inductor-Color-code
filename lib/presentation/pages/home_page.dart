@@ -34,21 +34,106 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inductor Calculator'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Inductor Calculator'),
-            Tab(text: 'Coil Calculator'),
+      body: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.backgroundDeep,
+        ),
+        child: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildInductorCalculatorTab(),
+                  _buildCoilCalculatorTab(),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 8,
+        left: 16,
+        right: 16,
+        bottom: 0,
+      ),
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundSurface,
+        border: Border(
+          bottom: BorderSide(color: AppTheme.borderSubtle, width: 1),
+        ),
+      ),
+      child: Column(
         children: [
-          _buildInductorCalculatorTab(),
-          _buildCoilCalculatorTab(),
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AppTheme.accentNeon,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.accentNeon.withValues(alpha: 0.5),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'INDUCTOR CALCULATOR',
+                style: AppTheme.labelStyle.copyWith(
+                  fontSize: 13,
+                  color: AppTheme.accentNeon,
+                  letterSpacing: 2,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.backgroundCard,
+                  borderRadius: BorderRadius.circular(2),
+                  border: Border.all(color: AppTheme.borderSubtle, width: 1),
+                ),
+                child: Text(
+                  'v1.0',
+                  style: AppTheme.labelStyle,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            tabs: [
+              _buildTab('INDUCTOR', Icons.sell_outlined),
+              _buildTab('COIL', Icons.loop),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab(String label, IconData icon) {
+    return Tab(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16),
+          const SizedBox(width: 6),
+          Text(label),
         ],
       ),
     );
@@ -61,16 +146,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
               InductorIllustration(bands: vm.bandColors),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               ValueDisplay(
                 value: vm.inductance,
                 tolerance: vm.tolerance,
               ),
-              const SizedBox(height: 40),
-              _buildBandCountToggle(vm),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
+              _buildSectionCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('BAND COUNT', style: AppTheme.labelStyle),
+                    const SizedBox(height: 12),
+                    SegmentedButton<int>(
+                      segments: const [
+                        ButtonSegment(value: 4, label: Text('4-BAND')),
+                        ButtonSegment(value: 5, label: Text('5-BAND')),
+                      ],
+                      selected: {vm.bandCount},
+                      onSelectionChanged: (Set<int> selected) {
+                        vm.setBandCount(selected.first);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
               _buildBandSelectors(vm),
             ],
           ),
@@ -79,23 +182,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildBandCountToggle(InductorCalculatorViewModel vm) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text('Band Count:', style: TextStyle(color: AppTheme.textSecondary)),
-        const SizedBox(width: 16),
-        SegmentedButton<int>(
-          segments: const [
-            ButtonSegment(value: 4, label: Text('4-Band')),
-            ButtonSegment(value: 5, label: Text('5-Band')),
-          ],
-          selected: {vm.bandCount},
-          onSelectionChanged: (Set<int> selected) {
-            vm.setBandCount(selected.first);
-          },
-        ),
-      ],
+  Widget _buildSectionCard({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundCard,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: AppTheme.borderSubtle, width: 1),
+      ),
+      child: child,
     );
   }
 
@@ -103,20 +199,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     if (vm.bandCount == 4) {
       return Column(
         children: [
-          _buildBandRow('Digit 1', 0, vm, isDigit: true),
-          _buildBandRow('Digit 2', 1, vm, isDigit: true),
-          _buildBandRow('Multiplier', 2, vm, isMultiplier: true),
-          _buildBandRow('Tolerance', 3, vm, isTolerance: true),
+          _buildBandRow('DIGIT 1', 0, vm, isDigit: true),
+          _buildBandRow('DIGIT 2', 1, vm, isDigit: true),
+          _buildBandRow('MULTIPLIER', 2, vm, isMultiplier: true),
+          _buildBandRow('TOLERANCE', 3, vm, isTolerance: true),
         ],
       );
     } else {
       return Column(
         children: [
-          _buildBandRow('Digit 1', 0, vm, isDigit: true),
-          _buildBandRow('Digit 2', 1, vm, isDigit: true),
-          _buildBandRow('Digit 3', 2, vm, isDigit: true),
-          _buildBandRow('Multiplier', 3, vm, isMultiplier: true),
-          _buildBandRow('Tolerance', 4, vm, isTolerance: true),
+          _buildBandRow('DIGIT 1', 0, vm, isDigit: true),
+          _buildBandRow('DIGIT 2', 1, vm, isDigit: true),
+          _buildBandRow('DIGIT 3', 2, vm, isDigit: true),
+          _buildBandRow('MULTIPLIER', 3, vm, isMultiplier: true),
+          _buildBandRow('TOLERANCE', 4, vm, isTolerance: true),
         ],
       );
     }
@@ -124,23 +220,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildBandRow(String label, int index, InductorCalculatorViewModel vm,
       {bool isDigit = false, bool isMultiplier = false, bool isTolerance = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundCard,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: AppTheme.borderSubtle, width: 1),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 14,
-            ),
+            style: AppTheme.labelStyle,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: _buildBandTiles(label, index, vm, isDigit: isDigit, isMultiplier: isMultiplier, isTolerance: isTolerance),
+              children: _buildBandTiles(label, index, vm,
+                  isDigit: isDigit, isMultiplier: isMultiplier, isTolerance: isTolerance),
             ),
           ),
         ],
@@ -201,12 +301,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           length: 3,
           child: Column(
             children: [
-              const TabBar(
-                tabs: [
-                  Tab(text: 'Single-Layer'),
-                  Tab(text: 'Multi-Layer'),
-                  Tab(text: 'Flat Spiral'),
-                ],
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppTheme.backgroundSurface,
+                  border: Border(
+                    bottom: BorderSide(color: AppTheme.borderSubtle, width: 1),
+                  ),
+                ),
+                child: TabBar(
+                  isScrollable: true,
+                  tabs: [
+                    _buildSubTab('SINGLE LAYER'),
+                    _buildSubTab('MULTI LAYER'),
+                    _buildSubTab('FLAT SPIRAL'),
+                  ],
+                ),
               ),
               Expanded(
                 child: TabBarView(
@@ -224,40 +334,43 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  Widget _buildSubTab(String label) {
+    return Tab(
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'SpaceGrotesk',
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSingleLayerTab(CoilCalculatorViewModel vm) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           const CoilGeometryDiagram(type: CoilGeometryType.singleLayer),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           ValueDisplay(value: vm.inductance),
-          const SizedBox(height: 30),
-          _buildTextField(
-            label: 'Coil Diameter D (mm)',
-            initialValue: vm.d.toString(),
-            onChanged: (val) {
+          const SizedBox(height: 20),
+          _buildInputSection('PARAMETERS', [
+            _buildTextField(label: 'Diameter D (mm)', value: vm.d.toString(), onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateSingleLayer(d, null, null);
-            },
-          ),
-          _buildTextField(
-            label: 'Coil Length L (mm)',
-            initialValue: vm.l.toString(),
-            onChanged: (val) {
+            }),
+            _buildTextField(label: 'Length L (mm)', value: vm.l.toString(), onChanged: (val) {
               double? l = double.tryParse(val);
               if (l != null) vm.updateSingleLayer(null, l, null);
-            },
-          ),
-          _buildTextField(
-            label: 'Number of Turns N',
-            initialValue: vm.n.toString(),
-            onChanged: (val) {
+            }),
+            _buildTextField(label: 'Turns N', value: vm.n.toString(), onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateSingleLayer(null, null, n);
-            },
-          ),
+            }),
+          ]),
         ],
       ),
     );
@@ -268,43 +381,29 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           const CoilGeometryDiagram(type: CoilGeometryType.multiLayer),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           ValueDisplay(value: vm.inductance),
-          const SizedBox(height: 30),
-          _buildTextField(
-            label: 'Inner Diameter d (mm)',
-            initialValue: vm.dInner.toString(),
-            onChanged: (val) {
+          const SizedBox(height: 20),
+          _buildInputSection('PARAMETERS', [
+            _buildTextField(label: 'Inner Diameter d (mm)', value: vm.dInner.toString(), onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateMultiLayer(d, null, null, null);
-            },
-          ),
-          _buildTextField(
-            label: 'Outer Diameter D (mm)',
-            initialValue: vm.dOuter.toString(),
-            onChanged: (val) {
+            }),
+            _buildTextField(label: 'Outer Diameter D (mm)', value: vm.dOuter.toString(), onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateMultiLayer(null, d, null, null);
-            },
-          ),
-          _buildTextField(
-            label: 'Winding Length l (mm)',
-            initialValue: vm.lMulti.toString(),
-            onChanged: (val) {
+            }),
+            _buildTextField(label: 'Winding Length l (mm)', value: vm.lMulti.toString(), onChanged: (val) {
               double? l = double.tryParse(val);
               if (l != null) vm.updateMultiLayer(null, null, l, null);
-            },
-          ),
-          _buildTextField(
-            label: 'Number of Turns N',
-            initialValue: vm.nMulti.toString(),
-            onChanged: (val) {
+            }),
+            _buildTextField(label: 'Turns N', value: vm.nMulti.toString(), onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateMultiLayer(null, null, null, n);
-            },
-          ),
+            }),
+          ]),
         ],
       ),
     );
@@ -315,43 +414,48 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           const CoilGeometryDiagram(type: CoilGeometryType.flatSpiral),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           ValueDisplay(value: vm.inductance),
-          const SizedBox(height: 30),
-          _buildTextField(
-            label: 'Outer Diameter D (mm)',
-            initialValue: vm.dOuterSpiral.toString(),
-            onChanged: (val) {
+          const SizedBox(height: 20),
+          _buildInputSection('PARAMETERS', [
+            _buildTextField(label: 'Outer Diameter D (mm)', value: vm.dOuterSpiral.toString(), onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateFlatSpiral(d, null, null, null);
-            },
-          ),
-          _buildTextField(
-            label: 'Trace Width w (mm)',
-            initialValue: vm.w.toString(),
-            onChanged: (val) {
+            }),
+            _buildTextField(label: 'Trace Width w (mm)', value: vm.w.toString(), onChanged: (val) {
               double? w = double.tryParse(val);
               if (w != null) vm.updateFlatSpiral(null, w, null, null);
-            },
-          ),
-          _buildTextField(
-            label: 'Trace Spacing s (mm)',
-            initialValue: vm.s.toString(),
-            onChanged: (val) {
+            }),
+            _buildTextField(label: 'Trace Spacing s (mm)', value: vm.s.toString(), onChanged: (val) {
               double? s = double.tryParse(val);
               if (s != null) vm.updateFlatSpiral(null, null, s, null);
-            },
-          ),
-          _buildTextField(
-            label: 'Number of Turns N',
-            initialValue: vm.nSpiral.toString(),
-            onChanged: (val) {
+            }),
+            _buildTextField(label: 'Turns N', value: vm.nSpiral.toString(), onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateFlatSpiral(null, null, null, n);
-            },
-          ),
+            }),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputSection(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundCard,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: AppTheme.borderSubtle, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTheme.labelStyle),
+          const SizedBox(height: 12),
+          ...children,
         ],
       ),
     );
@@ -359,24 +463,23 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildTextField({
     required String label,
-    required String initialValue,
+    required String value,
     required Function(String) onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
-        controller: TextEditingController(text: initialValue),
+        controller: TextEditingController(text: value),
         keyboardType: TextInputType.number,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(
+          color: AppTheme.textPrimary,
+          fontFamily: 'SpaceGrotesk',
+          fontSize: 14,
+        ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: AppTheme.textSecondary),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppTheme.textSecondary),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppTheme.accentCyan),
-          ),
+          labelStyle: AppTheme.labelStyle.copyWith(color: AppTheme.textSecondary),
+          suffixIcon: Icon(Icons.edit, color: AppTheme.textMuted, size: 16),
         ),
         onChanged: onChanged,
       ),
