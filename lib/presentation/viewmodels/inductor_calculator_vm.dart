@@ -35,6 +35,8 @@ class InductorCalculatorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool isMultiplierSelected(int index) => _selectedMultiplierIndex == index;
+
   void setTolerance(double value) {
     _selectedTolerance = value;
     notifyListeners();

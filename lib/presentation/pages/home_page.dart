@@ -274,7 +274,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         }
         tiles.add(ColorTile(
           color: color,
-          isSelected: false,
+          isSelected: vm.isMultiplierSelected(i),
           onTap: () => vm.setMultiplier(i),
         ));
       }
