@@ -26,15 +26,54 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  // Single Layer Controllers
+  late TextEditingController _singleD;
+  late TextEditingController _singleL;
+  late TextEditingController _singleN;
+
+  // Multi Layer Controllers
+  late TextEditingController _multiDInner;
+  late TextEditingController _multiDOuter;
+  late TextEditingController _multiL;
+  late TextEditingController _multiN;
+
+  // Flat Spiral Controllers
+  late TextEditingController _spiralD;
+  late TextEditingController _spiralW;
+  late TextEditingController _spiralS;
+  late TextEditingController _spiralN;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    _singleD = TextEditingController();
+    _singleL = TextEditingController();
+    _singleN = TextEditingController();
+    _multiDInner = TextEditingController();
+    _multiDOuter = TextEditingController();
+    _multiL = TextEditingController();
+    _multiN = TextEditingController();
+    _spiralD = TextEditingController();
+    _spiralW = TextEditingController();
+    _spiralS = TextEditingController();
+    _spiralN = TextEditingController();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _singleD.dispose();
+    _singleL.dispose();
+    _singleN.dispose();
+    _multiDInner.dispose();
+    _multiDOuter.dispose();
+    _multiL.dispose();
+    _multiN.dispose();
+    _spiralD.dispose();
+    _spiralW.dispose();
+    _spiralS.dispose();
+    _spiralN.dispose();
     super.dispose();
   }
 
@@ -393,15 +432,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ValueDisplay(value: vm.inductance),
           const SizedBox(height: 20),
           _buildInputSection('PARAMETERS', [
-            _buildTextField(label: 'Diameter D (mm)', value: vm.d.toString(), onChanged: (val) {
+            _buildTextField(label: 'Diameter D (mm)', controller: _singleD, onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateSingleLayer(d, null, null);
             }),
-            _buildTextField(label: 'Length L (mm)', value: vm.l.toString(), onChanged: (val) {
+            _buildTextField(label: 'Length L (mm)', controller: _singleL, onChanged: (val) {
               double? l = double.tryParse(val);
               if (l != null) vm.updateSingleLayer(null, l, null);
             }),
-            _buildTextField(label: 'Turns N', value: vm.n.toString(), onChanged: (val) {
+            _buildTextField(label: 'Turns N', controller: _singleN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateSingleLayer(null, null, n);
             }),
@@ -422,19 +461,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ValueDisplay(value: vm.inductance),
           const SizedBox(height: 20),
           _buildInputSection('PARAMETERS', [
-            _buildTextField(label: 'Inner Diameter d (mm)', value: vm.dInner.toString(), onChanged: (val) {
+            _buildTextField(label: 'Inner Diameter d (mm)', controller: _multiDInner, onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateMultiLayer(d, null, null, null);
             }),
-            _buildTextField(label: 'Outer Diameter D (mm)', value: vm.dOuter.toString(), onChanged: (val) {
+            _buildTextField(label: 'Outer Diameter D (mm)', controller: _multiDOuter, onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateMultiLayer(null, d, null, null);
             }),
-            _buildTextField(label: 'Winding Length l (mm)', value: vm.lMulti.toString(), onChanged: (val) {
+            _buildTextField(label: 'Winding Length l (mm)', controller: _multiL, onChanged: (val) {
               double? l = double.tryParse(val);
               if (l != null) vm.updateMultiLayer(null, null, l, null);
             }),
-            _buildTextField(label: 'Turns N', value: vm.nMulti.toString(), onChanged: (val) {
+            _buildTextField(label: 'Turns N', controller: _multiN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateMultiLayer(null, null, null, n);
             }),
@@ -455,19 +494,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ValueDisplay(value: vm.inductance),
           const SizedBox(height: 20),
           _buildInputSection('PARAMETERS', [
-            _buildTextField(label: 'Outer Diameter D (mm)', value: vm.dOuterSpiral.toString(), onChanged: (val) {
+            _buildTextField(label: 'Outer Diameter D (mm)', controller: _spiralD, onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateFlatSpiral(d, null, null, null);
             }),
-            _buildTextField(label: 'Trace Width w (mm)', value: vm.w.toString(), onChanged: (val) {
+            _buildTextField(label: 'Trace Width w (mm)', controller: _spiralW, onChanged: (val) {
               double? w = double.tryParse(val);
               if (w != null) vm.updateFlatSpiral(null, w, null, null);
             }),
-            _buildTextField(label: 'Trace Spacing s (mm)', value: vm.s.toString(), onChanged: (val) {
+            _buildTextField(label: 'Trace Spacing s (mm)', controller: _spiralS, onChanged: (val) {
               double? s = double.tryParse(val);
               if (s != null) vm.updateFlatSpiral(null, null, s, null);
             }),
-            _buildTextField(label: 'Turns N', value: vm.nSpiral.toString(), onChanged: (val) {
+            _buildTextField(label: 'Turns N', controller: _spiralN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateFlatSpiral(null, null, null, n);
             }),
@@ -620,14 +659,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildTextField({
     required String label,
-    required String value,
+    required TextEditingController controller,
     required Function(String) onChanged,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
-        controller: TextEditingController(text: value),
-        keyboardType: TextInputType.number,
+        controller: controller,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
         style: TextStyle(
           color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
           fontFamily: 'SpaceGrotesk',

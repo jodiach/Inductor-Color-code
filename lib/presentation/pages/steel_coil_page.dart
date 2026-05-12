@@ -14,10 +14,35 @@ class SteelCoilPage extends StatefulWidget {
 class _SteelCoilPageState extends State<SteelCoilPage> {
   late SteelCoilViewModel _vm;
 
+  late TextEditingController _innerDiameterCtrl;
+  late TextEditingController _outerDiameterCtrl;
+  late TextEditingController _densityCtrl;
+  late TextEditingController _widthCtrl;
+  late TextEditingController _thicknessCtrl;
+  late TextEditingController _stripWidthCtrl;
+
   @override
   void initState() {
     super.initState();
     _vm = SteelCoilViewModel();
+    _innerDiameterCtrl = TextEditingController();
+    _outerDiameterCtrl = TextEditingController();
+    _densityCtrl = TextEditingController();
+    _widthCtrl = TextEditingController();
+    _thicknessCtrl = TextEditingController();
+    _stripWidthCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _innerDiameterCtrl.dispose();
+    _outerDiameterCtrl.dispose();
+    _densityCtrl.dispose();
+    _widthCtrl.dispose();
+    _thicknessCtrl.dispose();
+    _stripWidthCtrl.dispose();
+    _vm.dispose();
+    super.dispose();
   }
 
   void _saveToHistory() {
@@ -159,52 +184,52 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
           const SizedBox(height: 16),
           if (_vm.mode == SteelCoilMode.weight) ...[
             _buildTextField(
+              controller: _innerDiameterCtrl,
               label: 'Inner Diameter (in)',
-              value: _vm.innerDiameter.toString(),
               onChanged: (v) => _vm.setInnerDiameter(double.tryParse(v) ?? 0),
               isDark: isDark,
             ),
             _buildTextField(
+              controller: _outerDiameterCtrl,
               label: 'Outer Diameter (in)',
-              value: _vm.outerDiameter.toString(),
               onChanged: (v) => _vm.setOuterDiameter(double.tryParse(v) ?? 0),
               isDark: isDark,
             ),
             _buildTextField(
+              controller: _widthCtrl,
               label: 'Width (in)',
-              value: _vm.width.toString(),
               onChanged: (v) => _vm.setWidth(double.tryParse(v) ?? 0),
               isDark: isDark,
             ),
             _buildTextField(
+              controller: _densityCtrl,
               label: 'Material Density (lb/in³)',
-              value: _vm.density.toString(),
               onChanged: (v) => _vm.setDensity(double.tryParse(v) ?? 0),
               isDark: isDark,
               hint: 'Carbon steel: 0.284',
             ),
           ] else ...[
             _buildTextField(
+              controller: _innerDiameterCtrl,
               label: 'Inner Diameter (in)',
-              value: _vm.innerDiameter.toString(),
               onChanged: (v) => _vm.setInnerDiameter(double.tryParse(v) ?? 0),
               isDark: isDark,
             ),
             _buildTextField(
+              controller: _outerDiameterCtrl,
               label: 'Outer Diameter (in)',
-              value: _vm.outerDiameter.toString(),
               onChanged: (v) => _vm.setOuterDiameter(double.tryParse(v) ?? 0),
               isDark: isDark,
             ),
             _buildTextField(
+              controller: _thicknessCtrl,
               label: 'Material Thickness (in)',
-              value: _vm.thickness.toString(),
               onChanged: (v) => _vm.setThickness(double.tryParse(v) ?? 0),
               isDark: isDark,
             ),
             _buildTextField(
+              controller: _stripWidthCtrl,
               label: 'Strip Width (in)',
-              value: _vm.stripWidth.toString(),
               onChanged: (v) => _vm.setStripWidth(double.tryParse(v) ?? 0),
               isDark: isDark,
             ),
@@ -215,8 +240,8 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
   }
 
   Widget _buildTextField({
+    required TextEditingController controller,
     required String label,
-    required String value,
     required ValueChanged<String> onChanged,
     required bool isDark,
     String? hint,
@@ -224,7 +249,7 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
-        controller: TextEditingController(text: value),
+        controller: controller,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         style: TextStyle(
           color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
