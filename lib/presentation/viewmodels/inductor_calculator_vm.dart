@@ -6,7 +6,7 @@ class InductorCalculatorViewModel extends ChangeNotifier {
   int _bandCount = 4;
   int get bandCount => _bandCount;
 
-  List<int> _selectedDigits = [1, 0]; // Default for 4-band: Brown, Black
+  List<int> _selectedDigits = [0, 0]; // Start with zeros
   int _selectedMultiplierIndex = 0; // Black (x1)
   double _selectedTolerance = 20.0; // Default: No band (±20%)
 

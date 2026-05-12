@@ -27,6 +27,7 @@ class InductorColorCodes {
     9: Color(0xFFFFFFFF), // x1G (White)
     -1: Color(0xFFFFD700), // x0.1 (Gold)
     -2: Color(0xFFC0C0C0), // x0.01 (Silver)
+    -3: Color(0xFF8B4513), // x0.001 (Brown - same as digit 1)
   };
 
   static final Map<double, Color> toleranceColors = {

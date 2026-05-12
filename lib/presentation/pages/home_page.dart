@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:inductor_coil_calculator/presentation/pages/about_page.dart';
+import 'package:inductor_coil_calculator/presentation/pages/privacy_page.dart';
+import 'package:inductor_coil_calculator/presentation/pages/terms_page.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../viewmodels/inductor_calculator_vm.dart';
 import '../viewmodels/coil_calculator_vm.dart';
+import '../viewmodels/history_vm.dart';
 import '../widgets/inductor_illustration.dart';
 import '../widgets/value_display.dart';
 import '../widgets/color_tile.dart';
 import '../widgets/coil_geometry_diagram.dart';
 import '../../core/constants/color_codes.dart';
+import 'history_page.dart';
+import 'inductor_color_bands_page.dart';
+import 'smd_code_page.dart';
+import 'steel_coil_page.dart';
+import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,12 +40,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          color: AppTheme.backgroundDeep,
+          color: isDark ? AppTheme.backgroundDeep : AppTheme.lightBackgroundDeep,
         ),
         child: Column(
           children: [
@@ -65,14 +76,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         bottom: 0,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundSurface,
+        color: isDark ? AppTheme.backgroundSurface : AppTheme.lightBackgroundSurface,
         border: Border(
-          bottom: BorderSide(color: AppTheme.borderSubtle, width: 1),
+          bottom: BorderSide(
+            color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+            width: 1,
+          ),
         ),
       ),
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 width: 8,
@@ -90,37 +105,50 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               const SizedBox(width: 12),
               Text(
-                'INDUCTOR CALCULATOR',
+                'INDUCTOR COIL CALCULATOR',
                 style: AppTheme.labelStyle.copyWith(
-                  fontSize: 13,
-                  color: AppTheme.accentNeon,
+                  fontSize: 12,
+                  color: isDark ? AppTheme.accentNeon : AppTheme.lightTextPrimary,
                   letterSpacing: 2,
                 ),
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.backgroundCard,
-                  borderRadius: BorderRadius.circular(2),
-                  border: Border.all(color: AppTheme.borderSubtle, width: 1),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.menu,
+                  color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+                  size: 20,
                 ),
-                child: Text(
-                  'v1.0',
-                  style: AppTheme.labelStyle,
+                onPressed: () => _showMenuSheet(context),
+              ),
+              Expanded(
+                child: TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  tabs: [
+                    _buildTab('INDUCTOR', Icons.sell_outlined),
+                    _buildTab('COIL', Icons.loop),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.history,
+                  color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+                  size: 20,
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HistoryPage()),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            tabs: [
-              _buildTab('INDUCTOR', Icons.sell_outlined),
-              _buildTab('COIL', Icons.loop),
-            ],
-          ),
+          _buildQuickActions(),
         ],
       ),
     );
@@ -139,6 +167,169 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  Widget _buildQuickActions() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.only(bottom: 12, top: 4),
+      child: Row(
+        children: [
+          _buildActionChip(
+            icon: Icons.palette_outlined,
+            label: 'Color Bands',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const InductorColorBandsPage()),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _buildActionChip(
+            icon: Icons.memory,
+            label: 'SMD Code',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SmdCodePage()),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _buildActionChip(
+            icon: Icons.precision_manufacturing_outlined,
+            label: 'Steel Coil',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SteelCoilPage()),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: (isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isDark ? AppTheme.accentNeon : AppTheme.accentElectric,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary,
+                fontSize: 11,
+                fontFamily: 'SpaceGrotesk',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showMenuSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildMenuItem(
+              icon: Icons.settings_outlined,
+              label: 'Settings',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsPage()),
+                );
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.info_outline,
+              label: 'About',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AboutPage()),
+                );
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.privacy_tip_outlined,
+              label: 'Privacy Policy',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PrivacyPage()),
+                );
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.description_outlined,
+              label: 'Terms of Service',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TermsPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: isDark ? AppTheme.accentNeon : AppTheme.accentElectric),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
+          fontFamily: 'SpaceGrotesk',
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+      ),
+      onTap: onTap,
+    );
+  }
+
   Widget _buildInductorCalculatorTab() {
     return Consumer<InductorCalculatorViewModel>(
       builder: (context, vm, child) {
@@ -149,10 +340,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               const SizedBox(height: 8),
               InductorIllustration(bands: vm.bandColors),
               const SizedBox(height: 20),
-              ValueDisplay(
-                value: vm.inductance,
-                tolerance: vm.tolerance,
-              ),
+              ValueDisplay(value: vm.inductance, tolerance: vm.tolerance),
               const SizedBox(height: 24),
               _buildSectionCard(
                 child: Column(
@@ -175,6 +363,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               const SizedBox(height: 12),
               _buildBandSelectors(vm),
+              const SizedBox(height: 16),
+              _buildSaveButton('Save to History', () => _saveInductorToHistory(vm)),
             ],
           ),
         );
@@ -182,116 +372,31 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildSectionCard({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.backgroundCard,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppTheme.borderSubtle, width: 1),
-      ),
-      child: child,
-    );
-  }
-
-  Widget _buildBandSelectors(InductorCalculatorViewModel vm) {
-    if (vm.bandCount == 4) {
-      return Column(
-        children: [
-          _buildBandRow('DIGIT 1', 0, vm, isDigit: true),
-          _buildBandRow('DIGIT 2', 1, vm, isDigit: true),
-          _buildBandRow('MULTIPLIER', 2, vm, isMultiplier: true),
-          _buildBandRow('TOLERANCE', 3, vm, isTolerance: true),
-        ],
-      );
-    } else {
-      return Column(
-        children: [
-          _buildBandRow('DIGIT 1', 0, vm, isDigit: true),
-          _buildBandRow('DIGIT 2', 1, vm, isDigit: true),
-          _buildBandRow('DIGIT 3', 2, vm, isDigit: true),
-          _buildBandRow('MULTIPLIER', 3, vm, isMultiplier: true),
-          _buildBandRow('TOLERANCE', 4, vm, isTolerance: true),
-        ],
-      );
-    }
-  }
-
-  Widget _buildBandRow(String label, int index, InductorCalculatorViewModel vm,
-      {bool isDigit = false, bool isMultiplier = false, bool isTolerance = false}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.backgroundCard,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppTheme.borderSubtle, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: AppTheme.labelStyle,
+  void _saveInductorToHistory(InductorCalculatorViewModel vm) {
+    final history = context.read<HistoryViewModel>();
+    final type = vm.bandCount == 4 ? CalculationType.inductorColor4 : CalculationType.inductorColor5;
+    history.addCalculation(type, {
+      'bandCount': vm.bandCount,
+      'digits': vm.digits,
+    }, {
+      'value': vm.inductance.toStringAsFixed(2),
+      'unit': 'µH',
+      'tolerance': vm.tolerance,
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Saved to history',
+          style: TextStyle(
+            fontFamily: 'SpaceGrotesk',
+            color: Colors.black,
           ),
-          const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _buildBandTiles(label, index, vm,
-                  isDigit: isDigit, isMultiplier: isMultiplier, isTolerance: isTolerance),
-            ),
-          ),
-        ],
+        ),
+        backgroundColor: AppTheme.accentNeon,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
       ),
     );
-  }
-
-  List<Widget> _buildBandTiles(String label, int index, InductorCalculatorViewModel vm,
-      {bool isDigit = false, bool isMultiplier = false, bool isTolerance = false}) {
-    List<Widget> tiles = [];
-
-    if (isDigit) {
-      for (int i = 0; i < 10; i++) {
-        tiles.add(ColorTile(
-          color: InductorColorCodes.digitColors[i]!,
-          isSelected: vm.digits[index] == i,
-          onTap: () => vm.setDigit(index, i),
-        ));
-      }
-    }
-
-    if (isMultiplier) {
-      for (int i = 0; i < 12; i++) {
-        Color color;
-        if (i < 10) {
-          color = InductorColorCodes.multiplierColors[i]!;
-        } else if (i == 10) {
-          color = InductorColorCodes.multiplierColors[-1]!;
-        } else {
-          color = InductorColorCodes.multiplierColors[-2]!;
-        }
-        tiles.add(ColorTile(
-          color: color,
-          isSelected: vm.isMultiplierSelected(i),
-          onTap: () => vm.setMultiplier(i),
-        ));
-      }
-    }
-
-    if (isTolerance) {
-      List<double> tolerances = [1.0, 2.0, 5.0, 10.0, 20.0];
-      for (double tol in tolerances) {
-        tiles.add(ColorTile(
-          color: InductorColorCodes.toleranceColors[tol]!,
-          isSelected: vm.tolerance == tol,
-          onTap: () => vm.setTolerance(tol),
-        ));
-      }
-    }
-
-    return tiles;
   }
 
   Widget _buildCoilCalculatorTab() {
@@ -304,9 +409,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundSurface,
+                  color: isDark ? AppTheme.backgroundSurface : AppTheme.lightBackgroundSurface,
                   border: Border(
-                    bottom: BorderSide(color: AppTheme.borderSubtle, width: 1),
+                    bottom: BorderSide(
+                      color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+                      width: 1,
+                    ),
                   ),
                 ),
                 child: TabBar(
@@ -442,18 +550,140 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildInputSection(String title, List<Widget> children) {
+  Widget _buildSectionCard({required Widget child}) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundCard,
+        color: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppTheme.borderSubtle, width: 1),
+        border: Border.all(
+          color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+          width: 1,
+        ),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildBandSelectors(InductorCalculatorViewModel vm) {
+    if (vm.bandCount == 4) {
+      return Column(
+        children: [
+          _buildBandRow('DIGIT 1', 0, vm, isDigit: true),
+          _buildBandRow('DIGIT 2', 1, vm, isDigit: true),
+          _buildBandRow('MULTIPLIER', 2, vm, isMultiplier: true),
+          _buildBandRow('TOLERANCE', 3, vm, isTolerance: true),
+        ],
+      );
+    } else {
+      return Column(
+        children: [
+          _buildBandRow('DIGIT 1', 0, vm, isDigit: true),
+          _buildBandRow('DIGIT 2', 1, vm, isDigit: true),
+          _buildBandRow('DIGIT 3', 2, vm, isDigit: true),
+          _buildBandRow('MULTIPLIER', 3, vm, isMultiplier: true),
+          _buildBandRow('TOLERANCE', 4, vm, isTolerance: true),
+        ],
+      );
+    }
+  }
+
+  Widget _buildBandRow(String label, int index, InductorCalculatorViewModel vm,
+      {bool isDigit = false, bool isMultiplier = false, bool isTolerance = false}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTheme.labelStyle),
+          Text(label, style: AppTheme.labelStyle.copyWith(
+            color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+          )),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _buildBandTiles(label, index, vm,
+                  isDigit: isDigit, isMultiplier: isMultiplier, isTolerance: isTolerance),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildBandTiles(String label, int index, InductorCalculatorViewModel vm,
+      {bool isDigit = false, bool isMultiplier = false, bool isTolerance = false}) {
+    List<Widget> tiles = [];
+
+    if (isDigit) {
+      for (int i = 0; i < 10; i++) {
+        tiles.add(ColorTile(
+          color: InductorColorCodes.digitColors[i]!,
+          isSelected: vm.digits[index] == i,
+          onTap: () => vm.setDigit(index, i),
+        ));
+      }
+    }
+
+    if (isMultiplier) {
+      for (int i = 0; i < 12; i++) {
+        Color color;
+        if (i < 10) {
+          color = InductorColorCodes.multiplierColors[i]!;
+        } else if (i == 10) {
+          color = InductorColorCodes.multiplierColors[-1]!;
+        } else {
+          color = InductorColorCodes.multiplierColors[-2]!;
+        }
+        tiles.add(ColorTile(
+          color: color,
+          isSelected: vm.isMultiplierSelected(i),
+          onTap: () => vm.setMultiplier(i),
+        ));
+      }
+    }
+
+    if (isTolerance) {
+      List<double> tolerances = [1.0, 2.0, 5.0, 10.0, 20.0];
+      for (double tol in tolerances) {
+        tiles.add(ColorTile(
+          color: InductorColorCodes.toleranceColors[tol]!,
+          isSelected: vm.tolerance == tol,
+          onTap: () => vm.setTolerance(tol),
+        ));
+      }
+    }
+
+    return tiles;
+  }
+
+  Widget _buildInputSection(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTheme.labelStyle.copyWith(
+            color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+          )),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -472,16 +702,50 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         controller: TextEditingController(text: value),
         keyboardType: TextInputType.number,
         style: TextStyle(
-          color: AppTheme.textPrimary,
+          color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
           fontFamily: 'SpaceGrotesk',
           fontSize: 14,
         ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: AppTheme.labelStyle.copyWith(color: AppTheme.textSecondary),
-          suffixIcon: Icon(Icons.edit, color: AppTheme.textMuted, size: 16),
+          labelStyle: AppTheme.labelStyle.copyWith(
+            color: isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary,
+          ),
+          suffixIcon: Icon(Icons.edit, color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted, size: 16),
         ),
         onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: AppTheme.accentNeon.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: AppTheme.accentNeon, width: 1),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.save_outlined, size: 18, color: AppTheme.accentNeon),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: AppTheme.accentNeon,
+                fontFamily: 'SpaceGrotesk',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

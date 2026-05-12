@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme/app_theme.dart';
 import 'onboarding_screen.dart';
+import 'home_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -29,11 +31,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _controller.forward();
 
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () async {
       if (mounted) {
+        final prefs = await SharedPreferences.getInstance();
+        final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+
+        if (!mounted) return;
+
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const OnboardingScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                hasSeenOnboarding ? const HomePage() : const OnboardingScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },
@@ -52,8 +60,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDeep,
+      backgroundColor: isDark ? AppTheme.backgroundDeep : AppTheme.lightBackgroundDeep,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,

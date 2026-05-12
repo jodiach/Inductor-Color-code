@@ -3,7 +3,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/unit_converter.dart';
 
 class ValueDisplay extends StatelessWidget {
-  final double value;
+  final double? value;
   final double? tolerance;
 
   const ValueDisplay({
@@ -14,12 +14,17 @@ class ValueDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundCard,
+        color: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppTheme.borderActive, width: 1),
+        border: Border.all(
+          color: isDark ? AppTheme.borderActive : AppTheme.lightBorderActive,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: AppTheme.accentNeon.withValues(alpha: 0.08),
@@ -36,8 +41,12 @@ class ValueDisplay extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                UnitConverter.formatInductance(value),
-                style: AppTheme.technicalValue,
+                value != null ? UnitConverter.formatInductance(value!) : '--',
+                style: AppTheme.technicalValue.copyWith(
+                  color: value != null
+                      ? (isDark ? AppTheme.accentNeon : AppTheme.lightTextPrimary)
+                      : (isDark ? AppTheme.textMuted : AppTheme.lightTextMuted),
+                ),
               ),
             ],
           ),
@@ -46,9 +55,12 @@ class ValueDisplay extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.backgroundSurface,
+                color: isDark ? AppTheme.backgroundSurface : AppTheme.lightBackgroundSurface,
                 borderRadius: BorderRadius.circular(2),
-                border: Border.all(color: AppTheme.borderSubtle, width: 1),
+                border: Border.all(
+                  color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+                  width: 1,
+                ),
               ),
               child: Text(
                 'TOLERANCE ±${tolerance!.toStringAsFixed(1)}%',

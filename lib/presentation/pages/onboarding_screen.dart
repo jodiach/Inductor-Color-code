@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme/app_theme.dart';
 import 'home_page.dart';
 
@@ -16,21 +17,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingData> _pages = [
     OnboardingData(
       icon: Icons.calculate_outlined,
-      title: 'Hitung Kumparan\ndengan Presisi',
+      title: 'Calculate Coils\nwith Precision',
       description:
-          'Hitung induktansi kumparan single-layer, flat spiral, dan multi-layer dengan akurasi tinggi.',
+          'Calculate single-layer, flat spiral, and multi-layer coil inductance with high accuracy.',
     ),
     OnboardingData(
       icon: Icons.palette_outlined,
-      title: 'Baca Kode Warna\nInduktor',
+      title: 'Read Inductor\nColor Codes',
       description:
-          'Input nilai induktor dengan mudah melalui kode warna 4-band dan 5-band.',
+          'Easily input inductor values through 4-band and 5-band color codes.',
     ),
     OnboardingData(
       icon: Icons.history_outlined,
-      title: 'Solusi Praktis\nuntuk Teknisi',
+      title: 'Practical Solution\nfor Technicians',
       description:
-          'Alat bantu terpercaya untuk engineer dan hobiis elektronik dalam menghitung induktor.',
+          'A reliable tool for engineers and electronics hobbyists to calculate inductors.',
     ),
   ];
 
@@ -40,7 +41,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  void _navigateToHome() {
+  void _navigateToHome() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_onboarding', true);
+    if (!mounted) return;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => const HomePage(),
@@ -60,8 +64,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDeep,
+      backgroundColor: isDark ? AppTheme.backgroundDeep : AppTheme.lightBackgroundDeep,
       body: SafeArea(
         child: Column(
           children: [
@@ -72,7 +77,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: TextButton(
                   onPressed: _navigateToHome,
                   child: Text(
-                    'LEWATI',
+                    'SKIP',
                     style: TextStyle(
                       color: AppTheme.textMuted,
                       fontSize: 12,

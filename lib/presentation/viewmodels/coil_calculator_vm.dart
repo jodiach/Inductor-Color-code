@@ -10,34 +10,37 @@ class CoilCalculatorViewModel extends ChangeNotifier {
   CoilType get activeType => _activeType;
 
   // Single Layer Inputs
-  double d = 10.0;
-  double l = 20.0;
-  int n = 50;
+  double d = 0.0;
+  double l = 0.0;
+  int n = 0;
 
   // Multi Layer Inputs
-  double dInner = 10.0;
-  double dOuter = 20.0;
-  double lMulti = 10.0;
-  int nMulti = 100;
+  double dInner = 0.0;
+  double dOuter = 0.0;
+  double lMulti = 0.0;
+  int nMulti = 0;
 
   // Flat Spiral Inputs
-  double dOuterSpiral = 30.0;
-  double w = 0.5;
-  double s = 0.5;
-  int nSpiral = 10;
+  double dOuterSpiral = 0.0;
+  double w = 0.0;
+  double s = 0.0;
+  int nSpiral = 0;
 
   void setType(CoilType type) {
     _activeType = type;
     notifyListeners();
   }
 
-  double get inductance {
+  double? get inductance {
     switch (_activeType) {
       case CoilType.singleLayer:
+        if (d <= 0 || l <= 0 || n <= 0) return null;
         return SingleLayerCoil.calculate(d, l, n);
       case CoilType.multiLayer:
+        if (dInner <= 0 || dOuter <= 0 || lMulti <= 0 || nMulti <= 0) return null;
         return MultiLayerCoil.calculate(dInner, dOuter, lMulti, nMulti);
       case CoilType.flatSpiral:
+        if (dOuterSpiral <= 0 || w <= 0 || s <= 0 || nSpiral <= 0) return null;
         return FlatSpiralCoil.calculate(dOuterSpiral, w, s, nSpiral);
     }
   }
