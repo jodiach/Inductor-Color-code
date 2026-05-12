@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:inductor_coil_calculator/presentation/pages/about_page.dart';
-import 'package:inductor_coil_calculator/presentation/pages/privacy_page.dart';
-import 'package:inductor_coil_calculator/presentation/pages/terms_page.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../viewmodels/inductor_calculator_vm.dart';
@@ -31,7 +29,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -58,6 +56,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 children: [
                   _buildInductorCalculatorTab(),
                   _buildCoilCalculatorTab(),
+                  const InductorColorBandsPage(),
+                  const SmdCodePage(),
+                  const SteelCoilPage(),
                 ],
               ),
             ),
@@ -132,6 +133,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   tabs: [
                     _buildTab('INDUCTOR', Icons.sell_outlined),
                     _buildTab('COIL', Icons.loop),
+                    _buildTab('COLOR BANDS', Icons.palette_outlined),
+                    _buildTab('SMD', Icons.memory),
+                    _buildTab('STEEL', Icons.precision_manufacturing_outlined),
                   ],
                 ),
               ),
@@ -148,7 +152,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ],
           ),
-          _buildQuickActions(),
         ],
       ),
     );
@@ -167,84 +170,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildQuickActions() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.only(bottom: 12, top: 4),
-      child: Row(
-        children: [
-          _buildActionChip(
-            icon: Icons.palette_outlined,
-            label: 'Color Bands',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const InductorColorBandsPage()),
-            ),
-          ),
-          const SizedBox(width: 8),
-          _buildActionChip(
-            icon: Icons.memory,
-            label: 'SMD Code',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SmdCodePage()),
-            ),
-          ),
-          const SizedBox(width: 8),
-          _buildActionChip(
-            icon: Icons.precision_manufacturing_outlined,
-            label: 'Steel Coil',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SteelCoilPage()),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionChip({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: (isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 14,
-              color: isDark ? AppTheme.accentNeon : AppTheme.accentElectric,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary,
-                fontSize: 11,
-                fontFamily: 'SpaceGrotesk',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showMenuSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -257,6 +182,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            _buildMenuItem(
+              icon: Icons.palette_outlined,
+              label: 'Color Bands Reference',
+              onTap: () {
+                Navigator.pop(ctx);
+                _tabController.animateTo(2);
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.memory,
+              label: 'SMD Code',
+              onTap: () {
+                Navigator.pop(ctx);
+                _tabController.animateTo(3);
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.precision_manufacturing_outlined,
+              label: 'Steel Coil',
+              onTap: () {
+                Navigator.pop(ctx);
+                _tabController.animateTo(4);
+              },
+            ),
             _buildMenuItem(
               icon: Icons.settings_outlined,
               label: 'Settings',
@@ -276,28 +225,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const AboutPage()),
-                );
-              },
-            ),
-            _buildMenuItem(
-              icon: Icons.privacy_tip_outlined,
-              label: 'Privacy Policy',
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PrivacyPage()),
-                );
-              },
-            ),
-            _buildMenuItem(
-              icon: Icons.description_outlined,
-              label: 'Terms of Service',
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const TermsPage()),
                 );
               },
             ),
