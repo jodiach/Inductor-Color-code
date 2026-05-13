@@ -11,7 +11,9 @@ import '../widgets/color_tile.dart';
 import '../widgets/coil_geometry_diagram.dart';
 import '../../core/constants/color_codes.dart';
 import 'history_page.dart';
-import 'about_page.dart';
+import 'inductor_color_bands_page.dart';
+import 'smd_code_page.dart';
+import 'steel_coil_page.dart';
 import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -282,6 +284,39 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildMenuItem(
+              icon: Icons.sell_outlined,
+              label: 'Inductor Color Bands',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const InductorColorBandsPage()),
+                );
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.memory,
+              label: 'SMD Code',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SmdCodePage()),
+                );
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.precision_manufacturing_outlined,
+              label: 'Steel Coil',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SteelCoilPage()),
+                );
+              },
+            ),
+            _buildMenuItem(
               icon: Icons.settings_outlined,
               label: 'Settings',
               onTap: () {
@@ -289,17 +324,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const SettingsPage()),
-                );
-              },
-            ),
-            _buildMenuItem(
-              icon: Icons.info_outline,
-              label: 'About',
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AboutPage()),
                 );
               },
             ),
