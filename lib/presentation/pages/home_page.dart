@@ -390,41 +390,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               const SizedBox(height: 12),
               _buildBandSelectors(vm),
-              const SizedBox(height: 16),
-              _buildSaveButton('Save to History', () => _saveInductorToHistory(vm)),
             ],
           ),
         );
       },
-    );
-  }
-
-  void _saveInductorToHistory(InductorCalculatorViewModel vm) {
-    final history = context.read<HistoryViewModel>();
-    final type = vm.bandCount == 4 ? CalculationType.inductorColor4 : CalculationType.inductorColor5;
-    history.addCalculation(type, {
-      'bandCount': vm.bandCount,
-      'digits': vm.digits,
-      'multiplier': vm.multiplierValue,
-      'tolerance': vm.tolerance,
-    }, {
-      'value': vm.inductance.toStringAsFixed(2),
-      'unit': 'µH',
-      'tolerance': vm.tolerance,
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Saved to history',
-          style: TextStyle(
-            fontFamily: 'SpaceGrotesk',
-            color: Colors.black,
-          ),
-        ),
-        backgroundColor: AppTheme.accentNeon,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
     );
   }
 
