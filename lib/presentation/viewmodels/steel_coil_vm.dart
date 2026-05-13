@@ -25,6 +25,14 @@ class SteelCoilViewModel extends ChangeNotifier {
   double _thickness = 0.0;
   double _stripWidth = 0.0;
 
+  // Validation errors
+  String? innerDiameterError;
+  String? outerDiameterError;
+  String? widthError;
+  String? densityError;
+  String? thicknessError;
+  String? stripWidthError;
+
   // Results
   SteelCoilResult? _weightResult;
   SteelCoilResult? _unwindResult;
@@ -45,33 +53,72 @@ class SteelCoilViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _clearErrors() {
+    innerDiameterError = null;
+    outerDiameterError = null;
+    widthError = null;
+    densityError = null;
+    thicknessError = null;
+    stripWidthError = null;
+  }
+
   void setInnerDiameter(double v) {
-    _innerDiameter = v;
+    _clearErrors();
+    if (v < 0) {
+      innerDiameterError = 'Must be >= 0';
+    } else {
+      _innerDiameter = v;
+    }
     _compute();
   }
 
   void setOuterDiameter(double v) {
-    _outerDiameter = v;
+    _clearErrors();
+    if (v < 0) {
+      outerDiameterError = 'Must be >= 0';
+    } else {
+      _outerDiameter = v;
+    }
     _compute();
   }
 
   void setWidth(double v) {
-    _width = v;
+    _clearErrors();
+    if (v < 0) {
+      widthError = 'Must be >= 0';
+    } else {
+      _width = v;
+    }
     _compute();
   }
 
   void setDensity(double v) {
-    _density = v;
+    _clearErrors();
+    if (v < 0) {
+      densityError = 'Must be >= 0';
+    } else {
+      _density = v;
+    }
     _compute();
   }
 
   void setThickness(double v) {
-    _thickness = v;
+    _clearErrors();
+    if (v < 0) {
+      thicknessError = 'Must be >= 0';
+    } else {
+      _thickness = v;
+    }
     _compute();
   }
 
   void setStripWidth(double v) {
-    _stripWidth = v;
+    _clearErrors();
+    if (v < 0) {
+      stripWidthError = 'Must be >= 0';
+    } else {
+      _stripWidth = v;
+    }
     _compute();
   }
 

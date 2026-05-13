@@ -26,6 +26,19 @@ class CoilCalculatorViewModel extends ChangeNotifier {
   double s = 0.0;
   int nSpiral = 0;
 
+  // Validation errors
+  String? dError;
+  String? lError;
+  String? nError;
+  String? dInnerError;
+  String? dOuterError;
+  String? lMultiError;
+  String? nMultiError;
+  String? dSpiralError;
+  String? wError;
+  String? sError;
+  String? nSpiralError;
+
   void setType(CoilType type) {
     _activeType = type;
     notifyListeners();
@@ -45,26 +58,109 @@ class CoilCalculatorViewModel extends ChangeNotifier {
     }
   }
 
-  void updateSingleLayer(double? d, double? l, int? n) {
-    if (d != null) this.d = d;
-    if (l != null) this.l = l;
-    if (n != null) this.n = n;
+  void _clearErrors() {
+    dError = null;
+    lError = null;
+    nError = null;
+    dInnerError = null;
+    dOuterError = null;
+    lMultiError = null;
+    nMultiError = null;
+    dSpiralError = null;
+    wError = null;
+    sError = null;
+    nSpiralError = null;
+  }
+
+  void updateSingleLayer(double? dVal, double? lVal, int? nVal) {
+    _clearErrors();
+    if (dVal != null) {
+      if (dVal < 0) {
+        dError = 'Must be >= 0';
+      } else {
+        d = dVal;
+      }
+    }
+    if (lVal != null) {
+      if (lVal < 0) {
+        lError = 'Must be >= 0';
+      } else {
+        l = lVal;
+      }
+    }
+    if (nVal != null) {
+      if (nVal < 0) {
+        nError = 'Must be >= 0';
+      } else {
+        n = nVal;
+      }
+    }
     notifyListeners();
   }
 
   void updateMultiLayer(double? di, double? do_, double? l, int? n) {
-    if (di != null) this.dInner = di;
-    if (do_ != null) this.dOuter = do_;
-    if (l != null) this.lMulti = l;
-    if (n != null) this.nMulti = n;
+    _clearErrors();
+    if (di != null) {
+      if (di < 0) {
+        dInnerError = 'Must be >= 0';
+      } else {
+        dInner = di;
+      }
+    }
+    if (do_ != null) {
+      if (do_ < 0) {
+        dOuterError = 'Must be >= 0';
+      } else {
+        dOuter = do_;
+      }
+    }
+    if (l != null) {
+      if (l < 0) {
+        lMultiError = 'Must be >= 0';
+      } else {
+        lMulti = l;
+      }
+    }
+    if (n != null) {
+      if (n < 0) {
+        nMultiError = 'Must be >= 0';
+      } else {
+        nMulti = n;
+      }
+    }
     notifyListeners();
   }
 
-  void updateFlatSpiral(double? do_, double? w, double? s, int? n) {
-    if (do_ != null) this.dOuterSpiral = do_;
-    if (w != null) this.w = w;
-    if (s != null) this.s = s;
-    if (n != null) this.nSpiral = n;
+  void updateFlatSpiral(double? do_, double? wVal, double? sVal, int? nVal) {
+    _clearErrors();
+    if (do_ != null) {
+      if (do_ < 0) {
+        dSpiralError = 'Must be >= 0';
+      } else {
+        dOuterSpiral = do_;
+      }
+    }
+    if (wVal != null) {
+      if (wVal < 0) {
+        wError = 'Must be >= 0';
+      } else {
+        w = wVal;
+      }
+    }
+    if (sVal != null) {
+      if (sVal < 0) {
+        sError = 'Must be >= 0';
+      } else {
+        s = sVal;
+      }
+    }
+    if (nVal != null) {
+      if (nVal < 0) {
+        nSpiralError = 'Must be >= 0';
+      } else {
+        nSpiral = nVal;
+      }
+    }
     notifyListeners();
   }
 }

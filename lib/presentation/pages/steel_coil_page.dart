@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../viewmodels/steel_coil_vm.dart';
@@ -152,6 +153,7 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
             ],
             selected: {_vm.mode},
             onSelectionChanged: (Set<SteelCoilMode> selected) {
+              HapticFeedback.selectionClick();
               _vm.setMode(selected.first);
             },
           ),
@@ -185,53 +187,68 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
           if (_vm.mode == SteelCoilMode.weight) ...[
             _buildTextField(
               controller: _innerDiameterCtrl,
-              label: 'Inner Diameter (in)',
+              label: 'Inner Diameter',
               onChanged: (v) => _vm.setInnerDiameter(double.tryParse(v) ?? 0),
               isDark: isDark,
+              hint: 'in inches',
+              errorText: _vm.innerDiameterError,
             ),
             _buildTextField(
               controller: _outerDiameterCtrl,
-              label: 'Outer Diameter (in)',
+              label: 'Outer Diameter',
               onChanged: (v) => _vm.setOuterDiameter(double.tryParse(v) ?? 0),
               isDark: isDark,
+              hint: 'in inches',
+              errorText: _vm.outerDiameterError,
             ),
             _buildTextField(
               controller: _widthCtrl,
-              label: 'Width (in)',
+              label: 'Width',
               onChanged: (v) => _vm.setWidth(double.tryParse(v) ?? 0),
               isDark: isDark,
+              hint: 'in inches',
+              errorText: _vm.widthError,
             ),
             _buildTextField(
               controller: _densityCtrl,
-              label: 'Material Density (lb/in³)',
+              label: 'Material Density',
               onChanged: (v) => _vm.setDensity(double.tryParse(v) ?? 0),
               isDark: isDark,
-              hint: 'Carbon steel: 0.284',
+              hint: 'lb/in³ (default: 0.284)',
+              errorText: _vm.densityError,
             ),
           ] else ...[
             _buildTextField(
               controller: _innerDiameterCtrl,
-              label: 'Inner Diameter (in)',
+              label: 'Inner Diameter',
               onChanged: (v) => _vm.setInnerDiameter(double.tryParse(v) ?? 0),
               isDark: isDark,
+              hint: 'in inches',
+              errorText: _vm.innerDiameterError,
             ),
             _buildTextField(
               controller: _outerDiameterCtrl,
-              label: 'Outer Diameter (in)',
+              label: 'Outer Diameter',
               onChanged: (v) => _vm.setOuterDiameter(double.tryParse(v) ?? 0),
               isDark: isDark,
+              hint: 'in inches',
+              errorText: _vm.outerDiameterError,
             ),
             _buildTextField(
               controller: _thicknessCtrl,
-              label: 'Material Thickness (in)',
+              label: 'Material Thickness',
               onChanged: (v) => _vm.setThickness(double.tryParse(v) ?? 0),
               isDark: isDark,
+              hint: 'in inches',
+              errorText: _vm.thicknessError,
             ),
             _buildTextField(
               controller: _stripWidthCtrl,
-              label: 'Strip Width (in)',
+              label: 'Strip Width',
               onChanged: (v) => _vm.setStripWidth(double.tryParse(v) ?? 0),
               isDark: isDark,
+              hint: 'in inches',
+              errorText: _vm.stripWidthError,
             ),
           ],
         ],
@@ -245,12 +262,13 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
     required ValueChanged<String> onChanged,
     required bool isDark,
     String? hint,
+    String? errorText,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
         controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
         style: TextStyle(
           color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
           fontFamily: 'JetBrainsMono',
@@ -259,6 +277,7 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
+          errorText: errorText,
           labelStyle: AppTheme.labelStyle.copyWith(
             color: isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary,
           ),
@@ -266,9 +285,17 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
             color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
             fontSize: 11,
           ),
+          errorStyle: TextStyle(
+            color: AppTheme.error,
+            fontFamily: 'JetBrainsMono',
+            fontSize: 11,
+          ),
           suffixIcon: Icon(Icons.edit, color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted, size: 16),
         ),
-        onChanged: onChanged,
+        onChanged: (v) {
+          HapticFeedback.selectionClick();
+          onChanged(v);
+        },
       ),
     );
   }

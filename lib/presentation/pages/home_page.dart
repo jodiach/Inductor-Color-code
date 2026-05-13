@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:inductor_coil_calculator/presentation/pages/about_page.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
@@ -321,6 +322,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ],
                       selected: {vm.bandCount},
                       onSelectionChanged: (Set<int> selected) {
+                        HapticFeedback.selectionClick();
                         vm.setBandCount(selected.first);
                       },
                     ),
@@ -349,6 +351,45 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       'unit': 'µH',
       'tolerance': vm.tolerance,
     });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Saved to history',
+          style: TextStyle(
+            fontFamily: 'SpaceGrotesk',
+            color: Colors.black,
+          ),
+        ),
+        backgroundColor: AppTheme.accentNeon,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _saveCoilToHistory(CoilCalculatorViewModel vm, CalculationType type) {
+    final history = context.read<HistoryViewModel>();
+    Map<String, dynamic> inputs;
+    Map<String, dynamic> result = {};
+
+    switch (type) {
+      case CalculationType.coilSingle:
+        inputs = {'d': vm.d, 'l': vm.l, 'n': vm.n};
+        result = {'value': vm.inductance?.toStringAsFixed(2) ?? '0', 'unit': 'µH'};
+        break;
+      case CalculationType.coilMulti:
+        inputs = {'dInner': vm.dInner, 'dOuter': vm.dOuter, 'l': vm.lMulti, 'n': vm.nMulti};
+        result = {'value': vm.inductance?.toStringAsFixed(2) ?? '0', 'unit': 'µH'};
+        break;
+      case CalculationType.coilFlatSpiral:
+        inputs = {'dOuter': vm.dOuterSpiral, 'w': vm.w, 's': vm.s, 'n': vm.nSpiral};
+        result = {'value': vm.inductance?.toStringAsFixed(2) ?? '0', 'unit': 'µH'};
+        break;
+      default:
+        return;
+    }
+
+    history.addCalculation(type, inputs, result);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -432,19 +473,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ValueDisplay(value: vm.inductance),
           const SizedBox(height: 20),
           _buildInputSection('PARAMETERS', [
-            _buildTextField(label: 'Diameter D (mm)', controller: _singleD, onChanged: (val) {
+            _buildTextField(label: 'Diameter D', controller: _singleD, onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateSingleLayer(d, null, null);
-            }),
-            _buildTextField(label: 'Length L (mm)', controller: _singleL, onChanged: (val) {
+            }, hint: 'mm', errorText: vm.dError),
+            _buildTextField(label: 'Length L', controller: _singleL, onChanged: (val) {
               double? l = double.tryParse(val);
               if (l != null) vm.updateSingleLayer(null, l, null);
-            }),
+            }, hint: 'mm', errorText: vm.lError),
             _buildTextField(label: 'Turns N', controller: _singleN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateSingleLayer(null, null, n);
-            }),
+            }, errorText: vm.nError),
           ]),
+          const SizedBox(height: 16),
+          _buildSaveButton('Save to History', () => _saveCoilToHistory(vm, CalculationType.coilSingle)),
         ],
       ),
     );
@@ -461,23 +504,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ValueDisplay(value: vm.inductance),
           const SizedBox(height: 20),
           _buildInputSection('PARAMETERS', [
-            _buildTextField(label: 'Inner Diameter d (mm)', controller: _multiDInner, onChanged: (val) {
+            _buildTextField(label: 'Inner Diameter d', controller: _multiDInner, onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateMultiLayer(d, null, null, null);
-            }),
-            _buildTextField(label: 'Outer Diameter D (mm)', controller: _multiDOuter, onChanged: (val) {
+            }, hint: 'mm', errorText: vm.dInnerError),
+            _buildTextField(label: 'Outer Diameter D', controller: _multiDOuter, onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateMultiLayer(null, d, null, null);
-            }),
-            _buildTextField(label: 'Winding Length l (mm)', controller: _multiL, onChanged: (val) {
+            }, hint: 'mm', errorText: vm.dOuterError),
+            _buildTextField(label: 'Winding Length l', controller: _multiL, onChanged: (val) {
               double? l = double.tryParse(val);
               if (l != null) vm.updateMultiLayer(null, null, l, null);
-            }),
+            }, hint: 'mm', errorText: vm.lMultiError),
             _buildTextField(label: 'Turns N', controller: _multiN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateMultiLayer(null, null, null, n);
-            }),
+            }, errorText: vm.nMultiError),
           ]),
+          const SizedBox(height: 16),
+          _buildSaveButton('Save to History', () => _saveCoilToHistory(vm, CalculationType.coilMulti)),
         ],
       ),
     );
@@ -494,23 +539,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ValueDisplay(value: vm.inductance),
           const SizedBox(height: 20),
           _buildInputSection('PARAMETERS', [
-            _buildTextField(label: 'Outer Diameter D (mm)', controller: _spiralD, onChanged: (val) {
+            _buildTextField(label: 'Outer Diameter D', controller: _spiralD, onChanged: (val) {
               double? d = double.tryParse(val);
               if (d != null) vm.updateFlatSpiral(d, null, null, null);
-            }),
-            _buildTextField(label: 'Trace Width w (mm)', controller: _spiralW, onChanged: (val) {
+            }, hint: 'mm', errorText: vm.dSpiralError),
+            _buildTextField(label: 'Trace Width w', controller: _spiralW, onChanged: (val) {
               double? w = double.tryParse(val);
               if (w != null) vm.updateFlatSpiral(null, w, null, null);
-            }),
-            _buildTextField(label: 'Trace Spacing s (mm)', controller: _spiralS, onChanged: (val) {
+            }, hint: 'mm', errorText: vm.wError),
+            _buildTextField(label: 'Trace Spacing s', controller: _spiralS, onChanged: (val) {
               double? s = double.tryParse(val);
               if (s != null) vm.updateFlatSpiral(null, null, s, null);
-            }),
+            }, hint: 'mm', errorText: vm.sError),
             _buildTextField(label: 'Turns N', controller: _spiralN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateFlatSpiral(null, null, null, n);
-            }),
+            }, errorText: vm.nSpiralError),
           ]),
+          const SizedBox(height: 16),
+          _buildSaveButton('Save to History', () => _saveCoilToHistory(vm, CalculationType.coilFlatSpiral)),
         ],
       ),
     );
@@ -596,7 +643,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         tiles.add(ColorTile(
           color: InductorColorCodes.digitColors[i]!,
           isSelected: vm.digits[index] == i,
-          onTap: () => vm.setDigit(index, i),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            vm.setDigit(index, i);
+          },
         ));
       }
     }
@@ -614,7 +664,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         tiles.add(ColorTile(
           color: color,
           isSelected: vm.isMultiplierSelected(i),
-          onTap: () => vm.setMultiplier(i),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            vm.setMultiplier(i);
+          },
         ));
       }
     }
@@ -625,7 +678,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         tiles.add(ColorTile(
           color: InductorColorCodes.toleranceColors[tol]!,
           isSelected: vm.tolerance == tol,
-          onTap: () => vm.setTolerance(tol),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            vm.setTolerance(tol);
+          },
         ));
       }
     }
@@ -661,12 +717,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     required String label,
     required TextEditingController controller,
     required Function(String) onChanged,
+    String? hint,
+    String? errorText,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
         controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
         style: TextStyle(
           color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
           fontFamily: 'SpaceGrotesk',
@@ -674,8 +732,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         decoration: InputDecoration(
           labelText: label,
+          hintText: hint,
+          errorText: errorText,
           labelStyle: AppTheme.labelStyle.copyWith(
             color: isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary,
+          ),
+          hintStyle: TextStyle(
+            color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+            fontSize: 11,
+          ),
+          errorStyle: TextStyle(
+            color: AppTheme.error,
+            fontFamily: 'SpaceGrotesk',
+            fontSize: 11,
           ),
           suffixIcon: Icon(Icons.edit, color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted, size: 16),
         ),

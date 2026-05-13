@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/color_codes.dart';
@@ -313,6 +314,7 @@ class _InductorColorBandsPageState extends State<InductorColorBandsPage> with Si
             ],
             selected: {_bandCount},
             onSelectionChanged: (Set<int> selected) {
+              HapticFeedback.selectionClick();
               setState(() => _bandCount = selected.first);
             },
           ),
@@ -373,7 +375,10 @@ class _InductorColorBandsPageState extends State<InductorColorBandsPage> with Si
   Widget _buildDigitTile(int digit, bool selected, VoidCallback onTap, bool isDark) {
     final color = InductorColorCodes.digitColors[digit]!;
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+                HapticFeedback.selectionClick();
+                onTap();
+              },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(right: 8),
@@ -432,7 +437,10 @@ class _InductorColorBandsPageState extends State<InductorColorBandsPage> with Si
                 final color = _getMultiplierColor(mult);
                 final selected = _multiplier == mult;
                 return GestureDetector(
-                  onTap: () => setState(() => _multiplier = mult),
+                  onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() => _multiplier = mult);
+                },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.only(right: 8),
@@ -501,7 +509,10 @@ class _InductorColorBandsPageState extends State<InductorColorBandsPage> with Si
                 final color = InductorColorCodes.toleranceColors[tol]!;
                 final selected = _tolerance == tol;
                 return GestureDetector(
-                  onTap: () => setState(() => _tolerance = tol),
+                  onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() => _tolerance = tol);
+                },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.only(right: 8),

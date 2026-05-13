@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
 
 class ColorTile extends StatefulWidget {
@@ -47,6 +48,7 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) {
         _controller.reverse();
+        HapticFeedback.selectionClick();
         widget.onTap();
       },
       onTapCancel: () => _controller.reverse(),
