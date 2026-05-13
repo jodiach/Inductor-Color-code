@@ -18,7 +18,9 @@ import 'steel_coil_page.dart';
 import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final HistoryEntry? historyEntry;
+
+  const HomePage({super.key, this.historyEntry});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -59,6 +61,72 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _spiralW = TextEditingController();
     _spiralS = TextEditingController();
     _spiralN = TextEditingController();
+
+    if (widget.historyEntry != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadHistoryEntry(widget.historyEntry!);
+      });
+    }
+  }
+
+  void _loadHistoryEntry(HistoryEntry entry) {
+    final type = entry.type;
+    switch (type) {
+      case CalculationType.inductorColor4:
+      case CalculationType.inductorColor5:
+        final vm = context.read<InductorCalculatorViewModel>();
+        vm.loadFromHistory(entry.inputs);
+        _tabController.animateTo(0);
+        break;
+      case CalculationType.coilSingle:
+        final vm = context.read<CoilCalculatorViewModel>();
+        vm.setActiveTypeAndLoad(type, entry.inputs);
+        _tabController.animateTo(1);
+        _populateCoilTextFields();
+        break;
+      case CalculationType.coilMulti:
+        final vm = context.read<CoilCalculatorViewModel>();
+        vm.setActiveTypeAndLoad(type, entry.inputs);
+        _tabController.animateTo(1);
+        _populateCoilTextFields();
+        break;
+      case CalculationType.coilFlatSpiral:
+        final vm = context.read<CoilCalculatorViewModel>();
+        vm.setActiveTypeAndLoad(type, entry.inputs);
+        _tabController.animateTo(1);
+        _populateCoilTextFields();
+        break;
+      case CalculationType.smdCode:
+        _tabController.animateTo(3);
+        break;
+      case CalculationType.steelWeight:
+      case CalculationType.steelUnwind:
+        _tabController.animateTo(4);
+        break;
+    }
+  }
+
+  void _populateCoilTextFields() {
+    final vm = context.read<CoilCalculatorViewModel>();
+    switch (vm.activeType) {
+      case CoilType.singleLayer:
+        _singleD.text = vm.d > 0 ? vm.d.toString() : '';
+        _singleL.text = vm.l > 0 ? vm.l.toString() : '';
+        _singleN.text = vm.n > 0 ? vm.n.toString() : '';
+        break;
+      case CoilType.multiLayer:
+        _multiDInner.text = vm.dInner > 0 ? vm.dInner.toString() : '';
+        _multiDOuter.text = vm.dOuter > 0 ? vm.dOuter.toString() : '';
+        _multiL.text = vm.lMulti > 0 ? vm.lMulti.toString() : '';
+        _multiN.text = vm.nMulti > 0 ? vm.nMulti.toString() : '';
+        break;
+      case CoilType.flatSpiral:
+        _spiralD.text = vm.dOuterSpiral > 0 ? vm.dOuterSpiral.toString() : '';
+        _spiralW.text = vm.w > 0 ? vm.w.toString() : '';
+        _spiralS.text = vm.s > 0 ? vm.s.toString() : '';
+        _spiralN.text = vm.nSpiral > 0 ? vm.nSpiral.toString() : '';
+        break;
+    }
   }
 
   @override
@@ -346,6 +414,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     history.addCalculation(type, {
       'bandCount': vm.bandCount,
       'digits': vm.digits,
+      'multiplier': vm.multiplierValue,
+      'tolerance': vm.tolerance,
     }, {
       'value': vm.inductance.toStringAsFixed(2),
       'unit': 'µH',

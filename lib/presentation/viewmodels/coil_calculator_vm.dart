@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/usecases/single_layer_coil.dart';
 import '../../domain/usecases/multi_layer_coil.dart';
 import '../../domain/usecases/flat_spiral_coil.dart';
+import 'history_vm.dart';
 
 enum CoilType { singleLayer, multiLayer, flatSpiral }
 
@@ -160,6 +161,64 @@ class CoilCalculatorViewModel extends ChangeNotifier {
       } else {
         nSpiral = nVal;
       }
+    }
+    notifyListeners();
+  }
+
+  void loadFromHistory(Map<String, dynamic> inputs) {
+    _clearErrors();
+    if (inputs.containsKey('d')) {
+      d = (inputs['d'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('l')) {
+      l = (inputs['l'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('n')) {
+      n = (inputs['n'] as num?)?.toInt() ?? 0;
+    }
+    if (inputs.containsKey('dInner')) {
+      dInner = (inputs['dInner'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('dOuter')) {
+      dOuter = (inputs['dOuter'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('lMulti')) {
+      lMulti = (inputs['lMulti'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('nMulti')) {
+      nMulti = (inputs['nMulti'] as num?)?.toInt() ?? 0;
+    }
+    if (inputs.containsKey('dOuterSpiral')) {
+      dOuterSpiral = (inputs['dOuterSpiral'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('w')) {
+      w = (inputs['w'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('s')) {
+      s = (inputs['s'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('nSpiral')) {
+      nSpiral = (inputs['nSpiral'] as num?)?.toInt() ?? 0;
+    }
+    notifyListeners();
+  }
+
+  void setActiveTypeAndLoad(CalculationType type, Map<String, dynamic> inputs) {
+    switch (type) {
+      case CalculationType.coilSingle:
+        _activeType = CoilType.singleLayer;
+        loadFromHistory(inputs);
+        break;
+      case CalculationType.coilMulti:
+        _activeType = CoilType.multiLayer;
+        loadFromHistory(inputs);
+        break;
+      case CalculationType.coilFlatSpiral:
+        _activeType = CoilType.flatSpiral;
+        loadFromHistory(inputs);
+        break;
+      default:
+        break;
     }
     notifyListeners();
   }

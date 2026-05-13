@@ -213,4 +213,32 @@ class SteelCoilViewModel extends ChangeNotifier {
     }
     return {};
   }
+
+  void loadFromHistory(Map<String, dynamic> inputs) {
+    _clearErrors();
+    if (inputs.containsKey('innerDiameter')) {
+      _innerDiameter = (inputs['innerDiameter'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('outerDiameter')) {
+      _outerDiameter = (inputs['outerDiameter'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('width')) {
+      _width = (inputs['width'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('density')) {
+      _density = (inputs['density'] as num?)?.toDouble() ?? 0.284;
+    }
+    if (inputs.containsKey('thickness')) {
+      _thickness = (inputs['thickness'] as num?)?.toDouble() ?? 0.0;
+    }
+    if (inputs.containsKey('stripWidth')) {
+      _stripWidth = (inputs['stripWidth'] as num?)?.toDouble() ?? 0.0;
+    }
+    _compute();
+  }
+
+  void setModeAndLoad(SteelCoilMode mode, Map<String, dynamic> inputs) {
+    _mode = mode;
+    loadFromHistory(inputs);
+  }
 }

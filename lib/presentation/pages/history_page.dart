@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../viewmodels/history_vm.dart';
+import 'home_page.dart';
 
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key});
+  final HistoryEntry? entryToLoad;
+
+  const HistoryPage({super.key, this.entryToLoad});
 
   @override
   State<HistoryPage> createState() => _HistoryPageState();
@@ -154,60 +157,70 @@ class _HistoryPageState extends State<HistoryPage> {
           vm.deleteEntry(entry.id!);
         }
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
-            width: 1,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => HomePage(historyEntry: entry),
+            ),
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+              width: 1,
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.type.label,
-                    style: TextStyle(
-                      color: isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary,
-                      fontSize: 11,
-                      fontFamily: 'SpaceGrotesk',
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.type.label,
+                      style: TextStyle(
+                        color: isDark ? AppTheme.textSecondary : AppTheme.lightTextSecondary,
+                        fontSize: 11,
+                        fontFamily: 'SpaceGrotesk',
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    entry.resultSummary,
-                    style: TextStyle(
-                      color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
-                      fontSize: 16,
-                      fontFamily: 'JetBrainsMono',
-                      fontWeight: FontWeight.w600,
+                    const SizedBox(height: 4),
+                    Text(
+                      entry.resultSummary,
+                      style: TextStyle(
+                        color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
+                        fontSize: 16,
+                        fontFamily: 'JetBrainsMono',
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatDate(entry.createdAt),
-                    style: TextStyle(
-                      color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
-                      fontSize: 11,
-                      fontFamily: 'SpaceGrotesk',
+                    const SizedBox(height: 4),
+                    Text(
+                      _formatDate(entry.createdAt),
+                      style: TextStyle(
+                        color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+                        fontSize: 11,
+                        fontFamily: 'SpaceGrotesk',
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
-            ),
-          ],
+              Icon(
+                Icons.chevron_right,
+                color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+              ),
+            ],
+          ),
         ),
       ),
     );
