@@ -97,7 +97,17 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
                     ),
                   ),
                 )
-              : null,
+              : Center(
+                  child: Text(
+                    widget.label ?? '',
+                    style: TextStyle(
+                      color: _contrastColor(widget.color),
+                      fontFamily: 'JetBrainsMono',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
         ),
       ),
     );

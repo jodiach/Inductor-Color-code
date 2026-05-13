@@ -235,6 +235,7 @@ class SteelCoilViewModel extends ChangeNotifier {
       _stripWidth = (inputs['stripWidth'] as num?)?.toDouble() ?? 0.0;
     }
     _compute();
+    notifyListeners();
   }
 
   void setModeAndLoad(SteelCoilMode mode, Map<String, dynamic> inputs) {

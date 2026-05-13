@@ -8,15 +8,19 @@ class InductorIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundCard,
+        color: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppTheme.borderSubtle, width: 1),
+        border: Border.all(
+          color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -28,19 +32,21 @@ class InductorIllustration extends StatelessWidget {
             width: 240,
             height: 100,
             child: CustomPaint(
-              painter: _InductorPainter(bands: bands),
+              painter: _InductorPainter(bands: bands, isDark: isDark),
             ),
           ),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: AppTheme.backgroundSurface,
+              color: isDark ? AppTheme.backgroundSurface : AppTheme.lightBackgroundSurface,
               borderRadius: BorderRadius.circular(2),
             ),
             child: Text(
               'COLOR CODE',
-              style: AppTheme.labelStyle,
+              style: AppTheme.labelStyle.copyWith(
+                color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
+              ),
             ),
           ),
         ],
@@ -51,14 +57,22 @@ class InductorIllustration extends StatelessWidget {
 
 class _InductorPainter extends CustomPainter {
   final List<Color> bands;
+  final bool isDark;
 
-  _InductorPainter({required this.bands});
+  _InductorPainter({required this.bands, required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
+    final gridColor = isDark ? AppTheme.gridLine : AppTheme.lightGridLine;
+    final borderColor = isDark ? AppTheme.borderActive : AppTheme.lightBorderActive;
+    final bodyTop = const Color(0xFF2A3441);
+    final bodyBottom = const Color(0xFF1A222D);
+    final lightBodyTop = const Color(0xFFE8ECF0);
+    final lightBodyBottom = const Color(0xFFD0D8E4);
+
     // Grid background
     final gridPaint = Paint()
-      ..color = AppTheme.gridLine
+      ..color = gridColor
       ..strokeWidth = 0.5;
 
     for (double x = 0; x < size.width; x += 12) {
@@ -72,10 +86,7 @@ class _InductorPainter extends CustomPainter {
     final bodyGradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [
-        const Color(0xFF2A3441),
-        const Color(0xFF1A222D),
-      ],
+      colors: isDark ? [bodyTop, bodyBottom] : [lightBodyTop, lightBodyBottom],
     );
 
     final bodyPaint = Paint()
@@ -88,7 +99,7 @@ class _InductorPainter extends CustomPainter {
         Rect.fromLTWH(24, 20, size.width - 40, size.height - 30),
         const Radius.circular(8),
       ),
-      Paint()..color = Colors.black.withValues(alpha: 0.4),
+      Paint()..color = Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
     );
 
     // Draw body
@@ -102,14 +113,15 @@ class _InductorPainter extends CustomPainter {
     canvas.drawRRect(
       bodyRect,
       Paint()
-        ..color = AppTheme.borderActive
+        ..color = borderColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5,
     );
 
     // Wire paint
+    final wireColor = isDark ? const Color(0xFF9EAFC2) : const Color(0xFF6B7A8A);
     final wirePaint = Paint()
-      ..color = const Color(0xFF9EAFC2)
+      ..color = wireColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round;
@@ -137,7 +149,7 @@ class _InductorPainter extends CustomPainter {
           bandWidth,
           size.height - 36,
         ),
-        Paint()..color = Colors.black.withValues(alpha: 0.25),
+        Paint()..color = Colors.black.withValues(alpha: isDark ? 0.25 : 0.1),
       );
 
       // Band
@@ -151,13 +163,13 @@ class _InductorPainter extends CustomPainter {
       // Band shine
       canvas.drawRect(
         Rect.fromLTWH(x + 1, 16, 2, 6),
-        Paint()..color = Colors.white.withValues(alpha: 0.2),
+        Paint()..color = Colors.white.withValues(alpha: isDark ? 0.2 : 0.4),
       );
     }
   }
 
   @override
   bool shouldRepaint(covariant _InductorPainter oldDelegate) {
-    return oldDelegate.bands != bands;
+    return oldDelegate.bands != bands || oldDelegate.isDark != isDark;
   }
 }

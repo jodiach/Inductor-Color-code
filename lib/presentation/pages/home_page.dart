@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter, HapticFeedback;
-import 'package:inductor_coil_calculator/presentation/pages/about_page.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../viewmodels/inductor_calculator_vm.dart';
@@ -12,9 +11,7 @@ import '../widgets/color_tile.dart';
 import '../widgets/coil_geometry_diagram.dart';
 import '../../core/constants/color_codes.dart';
 import 'history_page.dart';
-import 'inductor_color_bands_page.dart';
-import 'smd_code_page.dart';
-import 'steel_coil_page.dart';
+import 'about_page.dart';
 import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -49,7 +46,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _singleD = TextEditingController();
     _singleL = TextEditingController();
     _singleN = TextEditingController();
@@ -164,9 +161,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 children: [
                   _buildInductorCalculatorTab(),
                   _buildCoilCalculatorTab(),
-                  const InductorColorBandsPage(),
-                  const SmdCodePage(),
-                  const SteelCoilPage(),
                 ],
               ),
             ),
@@ -237,13 +231,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               Expanded(
                 child: TabBar(
                   controller: _tabController,
-                  isScrollable: true,
+                  isScrollable: false,
                   tabs: [
                     _buildTab('INDUCTOR', Icons.sell_outlined),
                     _buildTab('COIL', Icons.loop),
-                    _buildTab('COLOR BANDS', Icons.palette_outlined),
-                    _buildTab('SMD', Icons.memory),
-                    _buildTab('STEEL', Icons.precision_manufacturing_outlined),
                   ],
                 ),
               ),
@@ -290,30 +281,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildMenuItem(
-              icon: Icons.palette_outlined,
-              label: 'Color Bands Reference',
-              onTap: () {
-                Navigator.pop(ctx);
-                _tabController.animateTo(2);
-              },
-            ),
-            _buildMenuItem(
-              icon: Icons.memory,
-              label: 'SMD Code',
-              onTap: () {
-                Navigator.pop(ctx);
-                _tabController.animateTo(3);
-              },
-            ),
-            _buildMenuItem(
-              icon: Icons.precision_manufacturing_outlined,
-              label: 'Steel Coil',
-              onTap: () {
-                Navigator.pop(ctx);
-                _tabController.animateTo(4);
-              },
-            ),
             _buildMenuItem(
               icon: Icons.settings_outlined,
               label: 'Settings',
@@ -713,6 +680,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         tiles.add(ColorTile(
           color: InductorColorCodes.digitColors[i]!,
           isSelected: vm.digits[index] == i,
+          label: '$i',
           onTap: () {
             HapticFeedback.selectionClick();
             vm.setDigit(index, i);
