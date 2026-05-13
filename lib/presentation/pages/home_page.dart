@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter, HapticFeedback;
 import 'package:inductor_coil_calculator/presentation/pages/about_page.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
@@ -795,9 +795,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       child: TextField(
         controller: controller,
         keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*')),
+        ],
         style: TextStyle(
           color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
-          fontFamily: 'SpaceGrotesk',
+          fontFamily: 'JetBrainsMono',
           fontSize: 14,
         ),
         decoration: InputDecoration(
@@ -813,7 +816,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
           errorStyle: TextStyle(
             color: AppTheme.error,
-            fontFamily: 'SpaceGrotesk',
+            fontFamily: 'JetBrainsMono',
             fontSize: 11,
           ),
           suffixIcon: Icon(Icons.edit, color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted, size: 16),
