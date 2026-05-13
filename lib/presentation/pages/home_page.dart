@@ -554,7 +554,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             _buildTextField(label: 'Turns N', controller: _singleN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateSingleLayer(null, null, n);
-            }, errorText: vm.nError),
+            }, errorText: vm.nError, isDecimal: false),
           ]),
           const SizedBox(height: 16),
           _buildSaveButton('Save to History', () => _saveCoilToHistory(vm, CalculationType.coilSingle)),
@@ -589,7 +589,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             _buildTextField(label: 'Turns N', controller: _multiN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateMultiLayer(null, null, null, n);
-            }, errorText: vm.nMultiError),
+            }, errorText: vm.nMultiError, isDecimal: false),
           ]),
           const SizedBox(height: 16),
           _buildSaveButton('Save to History', () => _saveCoilToHistory(vm, CalculationType.coilMulti)),
@@ -624,7 +624,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             _buildTextField(label: 'Turns N', controller: _spiralN, onChanged: (val) {
               int? n = int.tryParse(val);
               if (n != null) vm.updateFlatSpiral(null, null, null, n);
-            }, errorText: vm.nSpiralError),
+            }, errorText: vm.nSpiralError, isDecimal: false),
           ]),
           const SizedBox(height: 16),
           _buildSaveButton('Save to History', () => _saveCoilToHistory(vm, CalculationType.coilFlatSpiral)),
@@ -789,14 +789,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     required Function(String) onChanged,
     String? hint,
     String? errorText,
+    bool isDecimal = true,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
         controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+        keyboardType: TextInputType.numberWithOptions(decimal: isDecimal, signed: true),
         inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*')),
+          FilteringTextInputFormatter.allow(isDecimal ? RegExp(r'^-?\d*\.?\d*') : RegExp(r'^-?\d*')),
         ],
         style: TextStyle(
           color: isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary,
