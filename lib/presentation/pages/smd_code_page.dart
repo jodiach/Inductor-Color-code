@@ -5,7 +5,9 @@ import '../viewmodels/smd_code_vm.dart';
 import '../viewmodels/history_vm.dart';
 
 class SmdCodePage extends StatefulWidget {
-  const SmdCodePage({super.key});
+  final HistoryEntry? historyEntry;
+
+  const SmdCodePage({super.key, this.historyEntry});
 
   @override
   State<SmdCodePage> createState() => _SmdCodePageState();
@@ -22,6 +24,12 @@ class _SmdCodePageState extends State<SmdCodePage> {
     _controller.addListener(() {
       _vm.parseCode(_controller.text);
     });
+    if (widget.historyEntry != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _vm.loadFromHistory(widget.historyEntry!.inputs);
+        _controller.text = _vm.inputCode;
+      });
+    }
   }
 
   @override

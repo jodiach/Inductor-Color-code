@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/color_codes.dart';
 import '../widgets/inductor_illustration.dart';
+import '../viewmodels/history_vm.dart';
 
 class InductorColorBandsPage extends StatefulWidget {
-  const InductorColorBandsPage({super.key});
+  final HistoryEntry? historyEntry;
+
+  const InductorColorBandsPage({super.key, this.historyEntry});
 
   @override
   State<InductorColorBandsPage> createState() => _InductorColorBandsPageState();
@@ -41,7 +45,23 @@ class _InductorColorBandsPageState extends State<InductorColorBandsPage> with Si
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
+    if (widget.historyEntry != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadHistoryEntry(widget.historyEntry!);
+      });
+    }
+  }
+
+  void _loadHistoryEntry(HistoryEntry entry) {
+    final inputs = entry.inputs;
+    _bandCount = inputs['bandCount'] ?? 4;
+    _digit1 = inputs['digit1'] ?? 0;
+    _digit2 = inputs['digit2'] ?? 0;
+    _digit3 = inputs['digit3'] ?? 0;
+    _multiplier = (inputs['multiplier'] as num?)?.toDouble() ?? 1.0;
+    _tolerance = (inputs['tolerance'] as num?)?.toDouble() ?? 5.0;
+    setState(() {});
   }
 
   @override
@@ -96,121 +116,8 @@ class _InductorColorBandsPageState extends State<InductorColorBandsPage> with Si
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: const [],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'REFERENCE'),
-            Tab(text: 'CALCULATOR'),
-          ],
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildReferenceTab(isDark),
-          _buildCalculatorTab(isDark),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReferenceTab(bool isDark) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _buildPaginatedSection(
-          'DIGIT COLORS',
-          InductorColorCodes.digitColors.entries.map((e) {
-            return _buildColorItem('${e.key}', 'DIGIT', e.value);
-          }).toList(),
-          isDark,
-          InductorColorCodes.digitColors.length,
-        ),
-        const SizedBox(height: 16),
-        _buildPaginatedSection(
-          'MULTIPLIER COLORS',
-          InductorColorCodes.multiplierColors.entries.map((e) {
-            String label;
-            if (e.key == -1) label = 'GOLD';
-            else if (e.key == -2) label = 'SILVER';
-            else label = 'x${e.key}';
-            return _buildColorItem(label, '', e.value);
-          }).toList(),
-          isDark,
-          InductorColorCodes.multiplierColors.length,
-        ),
-        const SizedBox(height: 16),
-        _buildPaginatedSection(
-          'TOLERANCE COLORS',
-          InductorColorCodes.toleranceColors.entries.map((e) {
-            return _buildColorItem('${e.key}%', '', e.value);
-          }).toList(),
-          isDark,
-          InductorColorCodes.toleranceColors.length,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPaginatedSection(String title, List<Widget> items, bool isDark, int totalItems) {
-    final totalPages = (totalItems / _itemsPerPage).ceil();
-    final startIndex = _currentPage * _itemsPerPage;
-    final endIndex = (startIndex + _itemsPerPage > totalItems) ? totalItems : startIndex + _itemsPerPage;
-    final pageItems = items.sublist(startIndex, endIndex);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title, style: AppTheme.labelStyle.copyWith(
-              color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
-            )),
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.chevron_left, size: 20, color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted),
-                  onPressed: _currentPage > 0 ? _prevPage : null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                ),
-                Text(
-                  '${_currentPage + 1}/$totalPages',
-                  style: TextStyle(
-                    color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted,
-                    fontSize: 12,
-                    fontFamily: 'JetBrainsMono',
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.chevron_right, size: 20, color: isDark ? AppTheme.textMuted : AppTheme.lightTextMuted),
-                  onPressed: _currentPage < totalPages - 1 ? () => _nextPage(totalItems) : null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isDark ? AppTheme.backgroundCard : AppTheme.lightBackgroundCard,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: isDark ? AppTheme.borderSubtle : AppTheme.lightBorderSubtle,
-              width: 1,
-            ),
-          ),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: pageItems,
-          ),
-        ),
-      ],
+      body: _buildCalculatorTab(isDark),
     );
   }
 

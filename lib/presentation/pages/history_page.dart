@@ -159,12 +159,7 @@ class _HistoryPageState extends State<HistoryPage> {
       },
       child: GestureDetector(
         onTap: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => HomePage(historyEntry: entry),
-            ),
-          );
+          _navigateToEntry(entry);
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),
@@ -278,6 +273,13 @@ class _HistoryPageState extends State<HistoryPage> {
           ),
         ],
       ),
+    );
+  }
+  void _navigateToEntry(HistoryEntry entry) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => HomePage(historyEntry: entry)),
+      (route) => false,
     );
   }
 }

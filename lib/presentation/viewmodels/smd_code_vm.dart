@@ -134,4 +134,11 @@ class SmdCodeViewModel extends ChangeNotifier {
     _error = null;
     notifyListeners();
   }
+
+  void loadFromHistory(Map<String, dynamic> inputs) {
+    _inputCode = inputs['code']?.toString() ?? '';
+    if (_inputCode.isNotEmpty) {
+      parseCode(_inputCode);
+    }
+  }
 }

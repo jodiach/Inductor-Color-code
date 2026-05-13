@@ -96,11 +96,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _populateCoilTextFields();
         break;
       case CalculationType.smdCode:
-        _tabController.animateTo(3);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => SmdCodePage(historyEntry: entry)),
+        );
         break;
       case CalculationType.steelWeight:
       case CalculationType.steelUnwind:
-        _tabController.animateTo(4);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => SteelCoilPage(historyEntry: entry)),
+        );
         break;
     }
   }

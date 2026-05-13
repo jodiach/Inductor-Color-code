@@ -6,7 +6,9 @@ import '../viewmodels/steel_coil_vm.dart';
 import '../viewmodels/history_vm.dart';
 
 class SteelCoilPage extends StatefulWidget {
-  const SteelCoilPage({super.key});
+  final HistoryEntry? historyEntry;
+
+  const SteelCoilPage({super.key, this.historyEntry});
 
   @override
   State<SteelCoilPage> createState() => _SteelCoilPageState();
@@ -32,6 +34,40 @@ class _SteelCoilPageState extends State<SteelCoilPage> {
     _widthCtrl = TextEditingController();
     _thicknessCtrl = TextEditingController();
     _stripWidthCtrl = TextEditingController();
+    if (widget.historyEntry != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadHistoryEntry(widget.historyEntry!);
+      });
+    }
+  }
+
+  void _loadHistoryEntry(HistoryEntry entry) {
+    final inputs = entry.inputs;
+    final innerDiameter = (inputs['innerDiameter'] as num?)?.toDouble() ?? 0.0;
+    final outerDiameter = (inputs['outerDiameter'] as num?)?.toDouble() ?? 0.0;
+
+    _vm.setInnerDiameter(innerDiameter);
+    _vm.setOuterDiameter(outerDiameter);
+    _innerDiameterCtrl.text = innerDiameter > 0 ? innerDiameter.toString() : '';
+    _outerDiameterCtrl.text = outerDiameter > 0 ? outerDiameter.toString() : '';
+
+    if (entry.type == CalculationType.steelWeight) {
+      _vm.setMode(SteelCoilMode.weight);
+      final width = (inputs['width'] as num?)?.toDouble() ?? 0.0;
+      final density = (inputs['density'] as num?)?.toDouble() ?? 0.284;
+      _vm.setWidth(width);
+      _vm.setDensity(density);
+      _widthCtrl.text = width > 0 ? width.toString() : '';
+      _densityCtrl.text = density > 0 ? density.toString() : '';
+    } else {
+      _vm.setMode(SteelCoilMode.unwind);
+      final thickness = (inputs['thickness'] as num?)?.toDouble() ?? 0.0;
+      final stripWidth = (inputs['stripWidth'] as num?)?.toDouble() ?? 0.0;
+      _vm.setThickness(thickness);
+      _vm.setStripWidth(stripWidth);
+      _thicknessCtrl.text = thickness > 0 ? thickness.toString() : '';
+      _stripWidthCtrl.text = stripWidth > 0 ? stripWidth.toString() : '';
+    }
   }
 
   @override
